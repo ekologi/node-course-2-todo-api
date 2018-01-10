@@ -32,7 +32,7 @@ var myTodo = new Todo ({
 });
 
 myTodo.save().then((doc)=>{
-    console.log('Berhasil simpan ' + doc)
+    console.log(JSON.stringify(doc,undefined, 2));
 }, (e)=> {
     console.log('Gagal simpan');
 });

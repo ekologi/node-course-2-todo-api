@@ -1,12 +1,14 @@
 const expect = require('expect');
 const request = require('supertest');
-
+const {ObjectID} = require('mongodb');
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
 
 const todos = [{
+    _id: new ObjectID(),
     text: 'Teks yg pertama'
 }, {
+    _id: new ObjectID(),
     text: 'Teks yg kedua'
 }];
 
@@ -66,6 +68,31 @@ describe('GET/todos', () => {
                 console.log(res);
                 expect(res.body.todo.length).toBe(2); 
             })
+            .end(done);
+    });
+});
+
+describe('GET/todos/:id', () => {
+    it('Mengembalikan todo berdasarkan ID ', (done) => {
+        request(app)
+            .get('/todos/' + todos[0]._id.toHexString())
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.text).toBe(todos[0].text);
+            })
+            .end(done);
+    });
+    it('Harus mengembalikan 404 jika tdk ketemu todo', (done) => {
+        var hexId = new ObjectID().toHexString();
+        request(app)
+            .get('/todos/' + hexId)
+            .expect(404)
+            .end(done);
+    });
+    it('Harus mengembalikan 404 jika non-object id', (done) => {
+        request(app)
+            .get('/todos/123abc')
+            .expect(404)
             .end(done);
     });
 });

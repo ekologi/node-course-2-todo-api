@@ -6,10 +6,12 @@ const {Todo} = require('./../models/todo');
 
 const todos = [{
     _id: new ObjectID(),
-    text: 'Teks yg pertama'
+    text: 'Teks yg pertama',
 }, {
     _id: new ObjectID(),
-    text: 'Teks yg kedua'
+    text: 'Teks yg kedua',
+    completed: false,
+    completedAt: 333
 }];
 
 beforeEach((done) => {
@@ -128,6 +130,46 @@ describe ('DELETE /todos/:id', () => {
             .delete('/todos/123abc')
             .expect(404)
             .end(done);
+    });
+
+});
+
+describe('PATCH /todos/:id', () => {
+
+    it('Should update the todo', (done) => {
+        var hexId = todos[0]._id.toHexString();
+        var text = 'Ini adalah komponen teks test';
+        request(app)
+            .patch('/todos/' + hexId)
+            .send({
+                completed: true,
+                text
+            })
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.text).toBe(text);
+                expect(res.body.todo.completed).toBe(true);
+                expect(res.body.todo.completedAt).toBeA('number');
+            }) 
+            .end(done);
+    });
+
+    it('Should return error when id not valid', (done) => {
+        var hexId = todos[1]._id.toHexString();
+        var text = 'Ini adalah komponen teks test!';
+        request(app)
+            .patch('/todos/' + hexId)
+            .send({
+                completed: false,
+                text
+            })
+            .expect(200)
+            .expect((res) => {
+                expect(res.body.todo.text).toBe(text);
+                expect(res.body.todo.completed).toBe(false);
+                expect(res.body.todo.completedAt).toNotExist();
+            })
+            .end(done);         
     });
 
 });
